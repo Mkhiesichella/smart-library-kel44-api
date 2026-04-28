@@ -61,7 +61,7 @@ export const LoanModel = {
   async getTopBorrowers() {
     const query = `
       SELECT 
-        m.id,
+        m.id AS member_id,
         m.full_name,
         m.email,
         m.member_type,
@@ -69,7 +69,10 @@ export const LoanModel = {
         COUNT(l.id)::int AS total_loans,
         MAX(l.loan_date) AS last_loan_date,
         (
-          SELECT b.title
+          SELECT json_build_object(
+            'title', b.title,
+            'times_borrowed', COUNT(*)::int
+          )
           FROM loans l2
           JOIN books b ON l2.book_id = b.id
           WHERE l2.member_id = m.id
